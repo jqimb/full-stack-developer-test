@@ -144,7 +144,7 @@ namespace APIAsignaciones.Model.DataAccess
         }
 
         /// <summary>
-        /// 
+        /// Busca registro por ID.
         /// </summary>
         /// <param name="entidad"></param>
         /// <returns></returns>

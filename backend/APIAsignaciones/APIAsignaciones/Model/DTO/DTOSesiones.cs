@@ -3,6 +3,9 @@ using Newtonsoft.Json.Serialization;
 
 namespace APIAsignaciones.Model.DTO
 {
+    /// <summary>
+    /// Objeto que traslada los campos de sesiones entre la capa de datos y presentación.
+    /// </summary>
     public class DTOSesiones
     {
         public int? Id { get; set; }
