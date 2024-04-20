@@ -12,6 +12,6 @@ namespace APIAsignaciones.Model.Interfaces
         IActionResult Update(Entidad entidad);
         IActionResult Delete(int id);
         IActionResult GetAll();
-        IActionResult GetByEntity(Entidad entidad);
+        IActionResult GetById(int id);
     }
 }

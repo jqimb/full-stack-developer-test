@@ -83,11 +83,11 @@ namespace APIAsignaciones.Controllers
 
         [HttpGet]
         [Route("Leer/{id}")]
-        public IActionResult GetByEntity(DTOAsignacion entidad)
+        public IActionResult GetById(int id)
         {
             try
             {
-                return Ok(dataAccess.GetById(entidad.Id));
+                return Ok(dataAccess.GetById(id));
             }
             catch (Exception ex)
             {

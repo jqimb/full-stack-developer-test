@@ -162,5 +162,25 @@ namespace APIAsignaciones.Controllers
                 return BadRequest(result);
             }
         }
+
+        [HttpGet]
+        [Route("Leer/{id}")]
+        public IActionResult GetById(int id)
+        {
+            try
+            {
+                return Ok(dataAccess.GetById(id));
+            }
+            catch (Exception ex)
+            {
+                var result = new
+                {
+                    msg = "Error al leer un registro",
+                    error = ex.Message
+                };
+
+                return BadRequest(result);
+            }
+        }
     }
 }

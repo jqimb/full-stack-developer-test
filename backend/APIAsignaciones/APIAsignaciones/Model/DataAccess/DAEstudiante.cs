@@ -129,7 +129,7 @@ namespace APIAsignaciones.Model.DataAccess
                             {
                                 entidad.Id = reader.GetInt32("id");
                                 entidad.Nombre = reader.GetString("nombre");
-                                entidad.Email = reader.GetString("nombre");
+                                entidad.Email = reader.GetString("email");
                                 break;
                             }
                             return entidad;
