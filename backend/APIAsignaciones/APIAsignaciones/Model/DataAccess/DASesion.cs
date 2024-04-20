@@ -118,7 +118,7 @@ namespace APIAsignaciones.Model.DataAccess
                 using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-                    string sql = @"SELECT s.id, s.nombre,s.start_datetime,s.end_datetime,s.cupo FROM TBL_SESIONES s";
+                    string sql = @"SELECT s.id, s.nombre,s.start_datetime,s.end_datetime,s.cupo, s.ocupado FROM TBL_SESIONES s";
                     using (var command = new SqlCommand(sql, connection))
                     {
                         using (var reader = command.ExecuteReader())
@@ -131,6 +131,7 @@ namespace APIAsignaciones.Model.DataAccess
                                 entidad.StartDateTime = reader.GetDateTime("start_datetime");
                                 entidad.EndDateTime = reader.GetDateTime("end_datetime");
                                 entidad.Cupo = reader.GetInt32("cupo");
+                                entidad.Ocupado = reader.GetInt32("ocupado");
                                 items.Add(entidad);
                             }
                             return items;
@@ -194,7 +195,7 @@ namespace APIAsignaciones.Model.DataAccess
                 using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-                    string sql = "SELECT s.id, s.nombre,s.start_datetime,s.end_datetime,s.cupo FROM TBL_SESIONES s WHERE s.id = @id";
+                    string sql = "SELECT s.id, s.nombre,s.start_datetime,s.end_datetime,s.cupo, s.ocupado FROM TBL_SESIONES s WHERE s.id = @id";
                     using (var command = new SqlCommand(sql, connection))
                     {
                         command.Parameters.AddWithValue("@id", id);
@@ -208,6 +209,7 @@ namespace APIAsignaciones.Model.DataAccess
                                 entidad.StartDateTime = reader.GetDateTime("start_datetime");
                                 entidad.EndDateTime = reader.GetDateTime("end_datetime");
                                 entidad.Cupo = reader.GetInt32("cupo");
+                                entidad.Ocupado = reader.GetInt32("ocupado");
                                 break;
                             }
                             return entidad;
@@ -237,7 +239,7 @@ namespace APIAsignaciones.Model.DataAccess
                 using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-                    string sql = @"SELECT s.id, s.nombre,s.start_datetime,s.end_datetime,s.cupo 
+                    string sql = @"SELECT s.id, s.nombre,s.start_datetime,s.end_datetime,s.cupo, s.ocupado
                                     FROM TBL_SESIONES s WHERE CAST(s.start_datetime AS DATE) = @fechaInicio
                                     ORDER BY s.start_datetime
                                     ";
@@ -254,6 +256,7 @@ namespace APIAsignaciones.Model.DataAccess
                                 entidad.StartDateTime = reader.GetDateTime("start_datetime");
                                 entidad.EndDateTime = reader.GetDateTime("end_datetime");
                                 entidad.Cupo = reader.GetInt32("cupo");
+                                entidad.Ocupado = reader.GetInt32("ocupado");
                                 items.Add(entidad);
                             }
                         }
@@ -279,7 +282,7 @@ namespace APIAsignaciones.Model.DataAccess
                 using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-                    string sql = "UPDATE TBL_SESIONES SET nombre=@nombre, start_datetime=@start_datetime, end_datetime=@end_datetime, cupo=@cupo " +
+                    string sql = "UPDATE TBL_SESIONES SET nombre=@nombre, start_datetime=@start_datetime, end_datetime=@end_datetime, cupo=@cupo, ocupado = @ocupado " +
                         " WHERE id = @id";
                     using (var command = new SqlCommand(sql, connection))
                     {
@@ -288,6 +291,7 @@ namespace APIAsignaciones.Model.DataAccess
                         command.Parameters.AddWithValue("@start_datetime", entidad.StartDateTime);
                         command.Parameters.AddWithValue("@end_datetime", entidad.EndDateTime);
                         command.Parameters.AddWithValue("@cupo", entidad.Cupo);
+                        command.Parameters.AddWithValue("@ocupado", entidad.Ocupado);
                         return command.ExecuteNonQuery() > 0;
                     }
                 }

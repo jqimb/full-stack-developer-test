@@ -13,6 +13,12 @@ namespace APIAsignaciones.Model.DTO
         public DateTime? StartDateTime { get; set; }
         public DateTime? EndDateTime { get; set; }
         public int? Cupo { get; set; }
+        public int? Ocupado { get; set; }
+        public int Disponible { get
+            {
+                return (Cupo ?? 0) - (Ocupado ?? 0);
+            }
+        }
 
     }
 }

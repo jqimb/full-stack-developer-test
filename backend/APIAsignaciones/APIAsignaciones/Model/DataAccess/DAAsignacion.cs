@@ -25,23 +25,41 @@ namespace APIAsignaciones.Model.DataAccess
         /// <returns></returns>
         public bool Create(DTOAsignacion entidad)
         {
+            bool result = false;
+            string msg = "";
+
             try
             {
                 using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-                    string sql = "INSERT INTO TBL_ASIGNACIONES (id_estudiante, id_sesion) VALUES (@id_estudiante, @id_sesion)";
+                    string sql = "sp_asignacion_sesion_estudiante";
                     using (var command = new SqlCommand(sql, connection))
                     {
+                        command.CommandType = CommandType.StoredProcedure;
                         command.Parameters.AddWithValue("@id_estudiante", entidad.Estudiante.Id);
                         command.Parameters.AddWithValue("@id_sesion", entidad.Sesion.Id);
-                        return command.ExecuteNonQuery() > 0;
+                        using(var reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                // El procedimiento retorna 0 cuando hay error y 1 cuando fue la operacion fue exitosa.
+                                result = reader.GetInt32("result") > 0;
+                                if(!result)
+                                {
+                                    msg = reader.GetString("msg");
+                                    throw new Exception(msg);
+                                }
+                            }
+                        }
                     }
                 }
+                return result;
             }
-            catch 
+            catch
             {
                 throw;
+
             }
         }
 

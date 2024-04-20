@@ -108,7 +108,12 @@ namespace APIAsignaciones.Controllers
         {
             try
             {
-                if(entidad.StartDateTime != null)
+                if(entidad.Id.HasValue && entidad.Id > 0)
+                {
+                    DTOSesiones result = dataAccess.GetById(entidad.Id ?? 0);
+                    return Ok(new { id = 1, result = result });
+                }
+                else if(entidad.StartDateTime != null)
                 {
                     List<DTOSesiones> result = dataAccess.GetByStartDate((DateTime)entidad.StartDateTime);
                     if (result != null && result.Count > 0)
@@ -122,8 +127,7 @@ namespace APIAsignaciones.Controllers
                 }
                 else
                 {
-                    DTOSesiones result = dataAccess.GetById(entidad.Id ?? 0);
-                    return Ok(new { id = 1, result = result });
+                    return Ok(new { id = 0, result = "Filtros inválidos." });
                 }
             }
             catch (Exception ex)

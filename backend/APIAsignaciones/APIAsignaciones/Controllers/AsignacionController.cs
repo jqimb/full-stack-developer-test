@@ -32,7 +32,7 @@ namespace APIAsignaciones.Controllers
                 var result = new
                 {
                     id = 0,
-                    msg = "Error al guardar, revisa los logs.",
+                    msg = ex.Message,
                 };
 
                 return BadRequest(result);
