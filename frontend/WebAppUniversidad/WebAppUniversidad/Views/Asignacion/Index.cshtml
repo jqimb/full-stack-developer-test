@@ -1,0 +1,278 @@
+﻿<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+<script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/momentjs/latest/moment-with-locales.min.js"></script>
+<link rel="stylesheet" href="~/css/asignacion.css" />
+
+@{
+    // Obtiene configuracion de archivo json con el URL base para conectarse a las APIs.
+    var apiBaseUrl = ViewData["apiURL"];
+}
+
+<h1>Nueva Asignación</h1>
+
+<div class="row">
+    <div class="col-6">
+        <div id='calendar'></div>
+    </div>
+    <div class="col-6">
+        <div class="row">
+            <div class="col-12">
+                <h1>Sesiones Disponibles</h1>
+                <input type="hidden" id="IDSesion" />
+                <div id="grupoSesiones" class="btn-group mr-2"></div>
+            </div>
+        </div>
+
+        <form id="frmDatos" hidden="true">
+            <div class="row mt-5 mb-3">
+                <h1>Asignación a Estudiante</h1>
+            </div>
+
+            <div class="row">
+                <div class="col-3">Curso:</div>
+                <div class="col-3"><label id="lblCurso"></label></div>
+            </div>
+            <div class="row">
+                <div class="col-3">Fecha inicio:</div>
+                <div class="col-3"><label id="lblFechaInicio"></label></div>
+            </div>
+            <div class="row">
+                <div class="col-3">Horario:</div>
+                <div class="col-3"><label id="lblHorario"></label></div>
+            </div>
+            <div class="row">
+                <div class="col-3">Cupo disponible:</div>
+                <div class="col-3"><label id="lblCupoDisponible"></label></div>
+            </div>
+            <div class="row">
+                <div class="col-3">Asignar Estudiante:</div>
+                <div class="col-6">
+                    <select id="cmbEstudiantes" class="form-select">
+                    </select>
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-9 text-start">
+                    <button type="button" onclick="guardarAsignacion()" class="btn btn-primary">Asignar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<script>
+
+    // Hace la carga de la catnidad de sesiones en el calendario al hacer click en una fecha.
+    function cargaSesionesFecha(fechaInicio, countEvents) {
+        if (countEvents > 0) {
+
+            // Json que recibe el metodo buscar en el API de sesiones
+            var jsonPost = {
+                startDateTime: fechaInicio
+            }
+
+            // Generar json request para solicitud POST de busqueda
+            var request = {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(jsonPost)
+            }
+
+            // Se busca el listado de sesiones en la fecha indicada
+            fetch(`@apiBaseUrl/api/Sesion/Buscar`, request)
+                .then(response => response.json())
+                .then(data => {
+                    resetDatosForm();
+
+                    // Datos encontrados
+                    if (data.id == 1) {
+
+                        data.result.forEach(function (item) {
+                            // Se genera la salida en un boton que luego puede buscar el detalle de la sesion al hacer click
+                            var horario = formatoHorario(item.startDateTime, item.endDateTime);
+
+                            var textSesion = "<span class='d-block mb-2'>" + item.nombre + "</span>" +
+                                "<span class='d-block mb-2'>" + horario + "</span>" +
+                                "<span class='d-block mb-2'>Cupo: " + item.cupo + "</span>";
+                            var html = "<button type='button' class='btn-primary' onclick='detalleSesion(" + item.id + ")'>" + textSesion + "</button>";
+                            grupoSesiones.innerHTML += html;
+                        });
+                    }
+                    else {
+                        console.log("Vacio");
+                    }
+                })
+                .catch(error => console.error("Error: ", error));
+        }
+    }
+
+    // Muestra el detalle de la sesion luego de hacer clic en el boton de la sesion seleccionada.
+    function detalleSesion(id) {
+        document.getElementById("IDSesion").value = id;
+        var request = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ id: id })
+        }
+
+        moment.locale('es');
+        document.getElementById("frmDatos").hidden = false;
+
+        fetch(`@apiBaseUrl/api/Sesion/Buscar`, request)
+            .then(response => response.json())
+            .then(data => {
+                //console.log(data);
+                var horario = formatoHorario(data.result.startDateTime, data.result.endDateTime);
+                //var fechaInicial = new Date(data.startDateTime);
+                const fechaFormateada = moment(data.result.startDateTime).format('dddd D [de] MMMM');
+                // Cargar informacion de lectura sobre sesion.
+                colocarDatosForm(data.result.nombre, fechaFormateada, horario, data.result.disponible);
+
+            })
+            .catch(error => console.log("Error msg: ", error));
+
+
+    }
+
+    // Reinicia los valores de la pantalla
+    function resetDatosForm() {
+        var grupoSesiones = document.getElementById("grupoSesiones");
+        grupoSesiones.innerHTML = "";
+        colocarDatosForm("", "", "", "");
+        document.getElementById("IDSesion").value = null;
+        // Ocultar formulario asignacion estudiante
+        document.getElementById("frmDatos").hidden = true;
+    }
+
+    // Actualiza en la vista los valores de los campos
+    function colocarDatosForm(curso, inicio, horario, cupoDisponible) {
+        document.getElementById("lblCurso").textContent = curso;
+        document.getElementById("lblFechaInicio").textContent = inicio;
+        document.getElementById("lblHorario").textContent = horario;
+        document.getElementById("lblCupoDisponible").textContent = cupoDisponible;
+    }
+
+
+    // Genera formato de fecha requerido "HoraInicio a HoraFin"
+    function formatoHorario(strFechaInicio, strFechaFin) {
+        var fechaInicio = new Date(strFechaInicio);
+        var fechaFin = new Date(strFechaFin);
+
+        return fechaInicio.getHours().toString().padStart(2, '0') + ":" + fechaInicio.getMinutes().toString().padStart(2, '0')
+            + " a " + fechaFin.getHours().toString().padStart(2, '0') + ":" + fechaFin.getMinutes().toString().padStart(2, '0');
+    }
+
+    // Carga los campos al iniciar la pagina
+    function iniciarSitio() {
+
+        // Iniciar Lista de Estudiantes
+        var cmbEstudiantes = document.getElementById("cmbEstudiantes");
+        cmbEstudiantes.innerHTML = "";
+
+        fetch(`@apiBaseUrl/api/Estudiante/Leer`)
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(function (item) {
+                    var option = document.createElement('option');
+                    option.value = item.id;
+                    option.textContent = item.nombre;
+                    cmbEstudiantes.appendChild(option);
+                });
+            })
+            .catch(error => console.error("Error msg: ", error));
+
+        // Iniciar Calendario
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch(`@apiBaseUrl/api/Sesion/SesionesCalendario`)
+                .then(response => response.json())
+                .then(data => {
+                    var calendarEl = document.getElementById('calendar');
+                    var calendar = new FullCalendar.Calendar(calendarEl, {
+                        selectable: true,
+                        dayMaxEventRows: 1,
+                        dayMaxEvents: 1,
+                        initialView: 'dayGridMonth',
+                        eventColor: 'blue',
+                        events: data,
+                        eventClick: function (info) {
+                            //alert('Se ha hecho clic en el evento: ' + info.event.start);
+                            // cargaSesionesFecha(info.event.start);
+                        },
+
+                        select: function (info) {
+                            // Deshacer la selección anterior
+                            var countEvents = calendar.getEvents().length;
+                            if (countEvents > 0) {
+                                calendar.unselect();
+                            }
+                            //var fechaInicio = info.start;
+                            cargaSesionesFecha(info.start, countEvents);
+                            //console.log(`Inicio: ${fechaInicio} Titulo: ${info.title}`);
+                        }
+
+                    });
+                    calendar.setOption('locale', 'es');
+                    calendar.render();
+                })
+                .catch(error => console.error("Error Msg: ", error));
+
+
+        });
+    }
+
+    // Registra la asignacion de la sesion al estudiante.
+    function guardarAsignacion() {
+        var estudiante = document.getElementById("cmbEstudiantes").value;
+        var sesion = document.getElementById("IDSesion").value;
+
+        if (estudiante == null) {
+            alert("Debe seleccionar un estudiante.");
+        }
+        else if (sesion == null) {
+            alert("Debe seleccionar una sesión.");
+        }
+        else {
+            var jsonData = {
+                "estudiante": {
+                    "id": estudiante
+                },
+                "sesion": {
+                    "id": sesion
+                }
+            }
+
+            var request = {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(jsonData)
+            }
+
+            // Envio de informacion a API para registro de asignacion
+            fetch(`@apiBaseUrl/api/Asignacion/Crear`, request)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.id == 1) {
+                        window.alert(data.msg);
+                        resetDatosForm();
+                        //window.location.reload();
+                    }
+                    else {
+                        window.alert(data.msg);
+                    }
+                })
+                .catch(error => console.error("Error msg: ", error));
+        }
+    }
+
+    // Carga los datos de inicio.
+    iniciarSitio();
+
+</script>
