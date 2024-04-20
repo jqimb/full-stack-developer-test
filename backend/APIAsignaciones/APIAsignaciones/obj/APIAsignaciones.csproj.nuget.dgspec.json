@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Projects\\U\\APIAsignaciones\\APIAsignaciones\\APIAsignaciones.csproj": {}
+    "C:\\ProjectU\\full-stack-developer-test\\backend\\APIAsignaciones\\APIAsignaciones\\APIAsignaciones.csproj": {}
   },
   "projects": {
-    "C:\\Projects\\U\\APIAsignaciones\\APIAsignaciones\\APIAsignaciones.csproj": {
+    "C:\\ProjectU\\full-stack-developer-test\\backend\\APIAsignaciones\\APIAsignaciones\\APIAsignaciones.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Projects\\U\\APIAsignaciones\\APIAsignaciones\\APIAsignaciones.csproj",
+        "projectUniqueName": "C:\\ProjectU\\full-stack-developer-test\\backend\\APIAsignaciones\\APIAsignaciones\\APIAsignaciones.csproj",
         "projectName": "APIAsignaciones",
-        "projectPath": "C:\\Projects\\U\\APIAsignaciones\\APIAsignaciones\\APIAsignaciones.csproj",
+        "projectPath": "C:\\ProjectU\\full-stack-developer-test\\backend\\APIAsignaciones\\APIAsignaciones\\APIAsignaciones.csproj",
         "packagesPath": "C:\\Users\\jqbat\\.nuget\\packages\\",
-        "outputPath": "C:\\Projects\\U\\APIAsignaciones\\APIAsignaciones\\obj\\",
+        "outputPath": "C:\\ProjectU\\full-stack-developer-test\\backend\\APIAsignaciones\\APIAsignaciones\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
