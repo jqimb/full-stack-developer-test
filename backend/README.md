@@ -12,6 +12,8 @@ Para ejecutar el proyecto, siga estos pasos:
    - `\design\Scripts\02 CREATE TABLES.sql`
    - `\design\Scripts\03 INSERT Estudiantes Prueba.sql`
    - `\design\Scripts\04 PROC Asignacion Estudiante.sql`
+   - `\design\Scripts\05 PROC Quitar Sesion Estudiante.sql`
+   - `\design\Scripts\06 PROC Actualizar Asignacion.sql`
 
 3. Configura el string de conexión en el archivo `appsettings.json`. Busca la variable `SQLDB` y ajuste el valor para que apunte a su instancia de SQL Server.
 4. Debes tener configurado el archivo `sesiones.json` que esta incluido en el proyecto. Al ejecutar el proyecto, este archivo cargará automáticamente las sesiones que no existan en la base de datos.
