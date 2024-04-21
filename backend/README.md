@@ -8,7 +8,7 @@ La base de datos utilizada fue Microsoft SQL Server en su versión 16.0.1000.6.
 
 Para ejecutar el proyecto, siga estos pasos:
 
-1. Tener instalado Microsoft Visual Studio Community, la versión utilizada para este proyecto fue la 2022, 17.4.3.
+1. Tener instalado Microsoft Visual Studio Community, la versión utilizada para este proyecto fue la 17.4.3.
 2. Contar con un servidor de base de datos de SQL Server, este se ha utilizado de manera local para el desarrollo.
 3. Debes descargar este proyecto utilizando git.
 4. Ejecuta los scripts SQL que estan en la carpeta `design\Scripts` en el orden numérico que contiene en el nombre de cada archivo en tu base de datos.

@@ -8,7 +8,7 @@ Para su desarrollo se ha utilizado HTML, CSS, JavaScript y librerias adicionales
 
 Para ejecutar este proyecto, sigue estos pasos:
 
-1. Tener instalado Microsoft Visual Studio Community, la versión utilizada para este proyecto fue la 2022, 17.4.3.
+1. Tener instalado Microsoft Visual Studio Community, la versión utilizada para este proyecto fue la 17.4.3.
 2. Se requiere la configuración adecuada del proyecto `APIAsignaciones` que incluye el backend.
 3. Abre el proyecto frontend `WebAppUniversidad` descargado en este repositorio git utilizando Microsoft Visual Studio.
 4. Configura el archivo `appsettings.json` y buscar el parámetro `UrlAPIBackend`, coloca el URL en que se está ejecutando el proyecto backend. Por defecto, el valor es `http://localhost:5042`.
