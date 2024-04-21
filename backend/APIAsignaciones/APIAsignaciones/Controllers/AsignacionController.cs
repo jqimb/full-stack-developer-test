@@ -32,7 +32,7 @@ namespace APIAsignaciones.Controllers
                 var result = new
                 {
                     id = 0,
-                    msg = ex.Message,
+                    msg = ex.Message
                 };
 
                 return BadRequest(result);
@@ -47,14 +47,15 @@ namespace APIAsignaciones.Controllers
         {
             try
             {
-                return Ok(dataAccess.Delete(id));
+                bool result = dataAccess.Delete(id);
+                return Ok(new { id = 1, msg = "Eliminado correctamente!" });
             }
             catch (Exception ex)
             {
                 var result = new
                 {
-                    msg = "Error al eliminar registro",
-                    error = ex.Message
+                    id = 0,
+                    msg = ex.Message
                 };
 
                 return BadRequest(result);
@@ -101,6 +102,25 @@ namespace APIAsignaciones.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("Estudiante/{id}")]
+        public IActionResult GetByIdEstudiante(int id)
+        {
+            try
+            {
+                return Ok(dataAccess.GetByEstudiante(id));
+            }
+            catch (Exception ex)
+            {
+                var result = new
+                {
+                    msg = "Error al leer un registro",
+                    error = ex.Message
+                };
+
+                return BadRequest(result);
+            }
+        }
 
         [HttpPut]
         [Route("Actualizar")]
@@ -108,14 +128,15 @@ namespace APIAsignaciones.Controllers
         {
             try
             {
-                return Ok(dataAccess.Update(entidad));
+                dataAccess.Update(entidad);
+                return Ok(new { id = 1, msg = "Asignación actualizada correctamente!" });
             }
             catch (Exception ex)
             {
                 var result = new
                 {
-                    msg = "Error al actualizar un registro",
-                    error = ex.Message
+                    id = 0,
+                    msg = ex.Message
                 };
 
                 return BadRequest(result);

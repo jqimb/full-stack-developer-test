@@ -1,6 +1,7 @@
 ﻿using APIAsignaciones.Model.Configurations;
 using APIAsignaciones.Model.DTO;
 using APIAsignaciones.Model.Interfaces;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -70,18 +71,34 @@ namespace APIAsignaciones.Model.DataAccess
         /// <returns></returns>
         public bool Delete(int id)
         {
+            bool result = false;
+            string msg = "";
             try
             {
                 using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-                    string sql = "DELETE FROM TBL_ASIGNACIONES WHERE id=@id";
+                    string sql = "sp_eliminar_sesion_estudiante";
                     using (var command = new SqlCommand(sql, connection))
                     {
-                        command.Parameters.AddWithValue("@id", id);
-                        return command.ExecuteNonQuery() > 0;
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.AddWithValue("@id_asignacion", id);
+                        using (var reader = command.ExecuteReader())
+                        {
+                            while(reader.Read())
+                            {
+                                // El procedimiento retorna 0 cuando hay error y 1 cuando fue la operacion fue exitosa.
+                                result = reader.GetInt32("result") > 0;
+                                if (!result)
+                                {
+                                    msg = reader.GetString("msg");
+                                    throw new Exception(msg);
+                                }
+                            }
+                        }
                     }
                 }
+                return result;
             }
             catch
             {
@@ -172,26 +189,94 @@ namespace APIAsignaciones.Model.DataAccess
         /// <returns></returns>
         public bool Update(DTOAsignacion entidad)
         {
+            bool result = false;
+            string msg = "";
             try
             {
                 using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-                    string sql = "UPDATE TBL_ASIGNACIONES SET id_estudiante=@id_estudiante, id_sesion=@id_sesion " +
-                        " WHERE id = @id";
+                    string sql = "sp_actualizar_asignacion";
                     using (var command = new SqlCommand(sql, connection))
                     {
-                        command.Parameters.AddWithValue("@id", entidad.Id);
-                        command.Parameters.AddWithValue("@id_estudiante", entidad.Estudiante.Id);
-                        command.Parameters.AddWithValue("@id_sesion", entidad.Sesion.Id);
-                        return command.ExecuteNonQuery() > 0;
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.AddWithValue("@id_asignacion", entidad.Id);
+                        command.Parameters.AddWithValue("@id_nueva_sesion", entidad.Sesion.Id);
+                        using (var reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                // El procedimiento retorna 0 cuando hay error y 1 cuando fue la operacion fue exitosa.
+                                result = reader.GetInt32("result") > 0;
+                                if (!result)
+                                {
+                                    msg = reader.GetString("msg");
+                                    throw new Exception(msg);
+                                }
+                            }
+                        }
                     }
                 }
+                return result;
             }
             catch 
             {
                 throw;
             }
         }
+
+
+        /// <summary>
+        /// Sesiones Asignadas del Estudiante
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public List<DTOAsignacion> GetByEstudiante(int id)
+        {
+            List<DTOAsignacion> lista = new List<DTOAsignacion>();
+            try
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string sql = @"SELECT a.id as id_asignacion, a.id_estudiante, a.id_sesion, s.nombre, s.start_datetime, s.end_datetime, s.cupo, s.ocupado, a.fecha_asignacion
+                                    FROM TBL_ASIGNACIONES a 
+                                    JOIN TBL_SESIONES s ON s.id = a.id_sesion
+                                    JOIN TBL_ESTUDIANTES e ON e.id = a.id_estudiante
+                                    WHERE a.id_estudiante = @id";
+                    using (var command = new SqlCommand(sql, connection))
+                    {
+                        command.Parameters.AddWithValue("@id", id);
+                        using (var reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                DTOAsignacion entidad = new DTOAsignacion();
+                                entidad.Id = reader.GetInt32("id_asignacion");
+                                entidad.FechaAsinacion = reader.GetDateTime("fecha_asignacion");
+                                entidad.Estudiante = new DTOEstudiante() {
+                                    Id = reader.GetInt32("id_estudiante")
+                                };
+                                entidad.Sesion = new DTOSesiones() {
+                                    Id = reader.GetInt32("id_sesion"),
+                                    Nombre = reader.GetString("nombre"),
+                                    StartDateTime = reader.GetDateTime("start_datetime"),
+                                    EndDateTime = reader.GetDateTime("end_datetime"),
+                                    Cupo = reader.GetInt32("cupo"),
+                                    Ocupado = reader.GetInt32("ocupado")
+                                };
+                                lista.Add(entidad);
+                            }
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                throw;
+            }
+            return lista;
+        }
+
     }
 }

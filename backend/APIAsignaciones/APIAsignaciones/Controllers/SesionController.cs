@@ -143,6 +143,26 @@ namespace APIAsignaciones.Controllers
         }
 
 
+        [HttpGet]
+        [Route("SesionesEstudiante/{id}")]
+        public IActionResult GetByEstudiante(int id)
+        {
+            try
+            {
+                return Ok(dataAccess.GetById(id));
+            }
+            catch (Exception ex)
+            {
+                var result = new
+                {
+                    msg = "Error al leer un registro",
+                    error = ex.Message
+                };
+
+                return BadRequest(result);
+            }
+        }
+
         [HttpPut]
         [Route("Actualizar")]
         public IActionResult Update(DTOSesiones entidad)

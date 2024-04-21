@@ -1,0 +1,128 @@
+﻿@{
+    // Obtiene configuracion de archivo json con el URL base para conectarse a las APIs.
+    var apiBaseUrl = ViewData["apiURL"];
+}
+<link rel="stylesheet" href="~/css/asignaciones.css" />
+<script>
+    var apiBaseUrl = "@apiBaseUrl";
+</script>
+<script src="~/js/asignaciones.js"></script>
+
+
+<h1>Eliminar Sesión de Estudiante</h1>
+
+<div class="row">
+
+    <div class="col-6">
+
+        <form id="frmDatos">
+            <div class="row mb-2">
+                <div class="col-3">Estudiante:</div>
+                <div class="col-6">
+                    <select id="cmbEstudiantes" onchange="busquedaSesionesAsignadas()" class="form-select">
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-3">Asignaciones:</div>
+                <div class="col-6">
+                    <select id="cmbAsignaciones" onchange="detalleSesion()" class="form-select">
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mt-3 mb-2">
+                <div class="col-3">No. Asignación:</div>
+                <div class="col-3"><label id="lblAsignacion"></label></div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-3">Fecha inicio:</div>
+                <div class="col-3"><label id="lblFechaInicio"></label></div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-3">Fecha Fin:</div>
+                <div class="col-3"><label id="lblFechaFin"></label></div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-3">Horario:</div>
+                <div class="col-3"><label id="lblHorario"></label></div>
+            </div>
+
+            <br />
+            <div class="row">
+                <div class="col-9 text-start">
+                    <button type="button" onclick="eliminarAsignacion()" class="btn btn-primary">Eliminar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<script>
+     
+    // Carga los campos al iniciar la pagina
+    function iniciarSitio() {
+
+        // Iniciar Lista de Estudiantes
+        var cmbEstudiantes = document.getElementById("cmbEstudiantes");
+        cmbEstudiantes.innerHTML = "";
+
+        moment.locale('es');
+
+        fetch(`@apiBaseUrl/api/Estudiante/Leer`)
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(function (item) {
+                    var option = document.createElement('option');
+                    option.value = item.id;
+                    option.textContent = item.nombre;
+                    cmbEstudiantes.appendChild(option);
+                });
+            })
+            .then(() => {
+                busquedaSesionesAsignadas();
+            })
+            .catch(error => console.error("Error msg: ", error));
+
+    }
+
+    // Borra la asignacion del estudiante y sesion seleccionada.
+    function eliminarAsignacion() {
+        var asignacion = document.getElementById("cmbAsignaciones").value;
+
+        if (asignacion == null) {
+            alert("Debe seleccionar una asignacion.");
+        }
+        else {
+            const request = {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+            // Se solicita al API la eliminación
+            fetch(`@apiBaseUrl/api/Asignacion/Eliminar/` + asignacion, request)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.id == 1) {
+                        window.alert(data.msg);
+                        // Se busca nuevamente las sesiones asignadas debiendo desaparecer la eliminada.
+                        busquedaSesionesAsignadas();
+                    }
+                    else {
+                        window.alert(data.msg);
+                    }
+                })
+                .catch(error => console.error("Error msg: ", error));
+        }
+    }
+
+    // Carga los datos de inicio.
+    iniciarSitio();
+
+</script>

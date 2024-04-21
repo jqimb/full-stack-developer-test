@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/WebAppUniversidad.styles.css" asp-append-version="true" />
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+    <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/momentjs/latest/moment-with-locales.min.js"></script>
 </head>
 <body>
     <header>
@@ -23,7 +26,13 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Asignacion" asp-action="Index">Asignación</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Asignacion" asp-action="Index">Agregar</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Eliminacion" asp-action="Index">Eliminar</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Modificar" asp-action="Index">Modificar</a>
                         </li>
                     </ul>
                 </div>

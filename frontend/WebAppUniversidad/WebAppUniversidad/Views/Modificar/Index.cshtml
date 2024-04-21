@@ -1,0 +1,252 @@
+﻿@{
+    // Obtiene configuracion de archivo json con el URL base para conectarse a las APIs.
+    var apiBaseUrl = ViewData["apiURL"];
+}
+<link rel="stylesheet" href="~/css/asignaciones.css" />
+<script>
+    var apiBaseUrl = "@apiBaseUrl";
+</script>
+<script src="~/js/asignaciones.js"></script>
+
+<h1>Modificar Sesión de Estudiante</h1>
+
+<div class="row">
+
+    <div class="col-12">
+
+        <form id="frmDatos">
+            <div class="row mb-2">
+                <div class="col-6">
+                    <div class="row">
+                        <div class="col-3">Estudiante:</div>
+                        <div class="col-6">
+                            <select id="cmbEstudiantes" onchange="busquedaSesionesAsignadas()" class="form-select">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-6">
+                    <div class="row mb-2">
+                        <div class="col-3">Asignaciones:</div>
+                        <div class="col-6">
+                            <select id="cmbAsignaciones" onchange="detalleSesion()" class="form-select">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3 mb-2">
+                        <div class="col-3">No. Asignación:</div>
+                        <div class="col-3"><label id="lblAsignacion"></label></div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-3">Fecha inicio:</div>
+                        <div class="col-3"><label id="lblFechaInicio"></label></div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-3">Fecha Fin:</div>
+                        <div class="col-3"><label id="lblFechaFin"></label></div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-3">Horario:</div>
+                        <div class="col-3"><label id="lblHorario"></label></div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="row mb-2">
+                        <div class="col-3">Nueva Sesión:</div>
+                        <div class="col-6">
+                            <select id="cmbSesiones" onchange="detalleNuevaSesion()" class="form-select">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3 mb-2">
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-3">Fecha inicio:</div>
+                        <div class="col-3"><label id="lblFechaInicioNew"></label></div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-3">Fecha Fin:</div>
+                        <div class="col-3"><label id="lblFechaFinNew"></label></div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-3">Horario:</div>
+                        <div class="col-3"><label id="lblHorarioNew"></label></div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-3">Cupo:</div>
+                        <div class="col-3"><label id="lblCupoNew"></label></div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-3">Disponible:</div>
+                        <div class="col-3"><label id="lblDisponibleNew"></label></div>
+                    </div>
+
+                    <br />
+                    <div class="row">
+                        <div class="col-9 text-start">
+                            <button type="button" onclick="modificarAsignacion()" class="btn btn-primary">Modificar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </form>
+    </div>
+
+</div>
+
+<script>
+
+    // Muestra el detalle de la nueva sesion
+    function detalleNuevaSesion() {
+        var cmbSesiones = document.getElementById("cmbSesiones");
+        var selectedOption = cmbSesiones.options[cmbSesiones.selectedIndex];
+
+        if (selectedOption != null && cmbSesiones.value > 0) {
+            var horario = formatoHorario(selectedOption.dataset.start, selectedOption.dataset.end);
+            //var fechaInicial = new Date(data.startDateTime);
+            const fechaInicioFormateada = moment(selectedOption.dataset.start).format('dddd D [de] MMMM');
+            const fechaFinFormateada = moment(selectedOption.dataset.end).format('dddd D [de] MMMM');
+            // Cargar informacion de lectura sobre sesion.
+            colocarDatosFormNuevaSesion(fechaInicioFormateada, fechaFinFormateada, horario, selectedOption.dataset.cupo, selectedOption.dataset.disponible)
+        }
+        else {
+            colocarDatosFormNuevaSesion("", "", "", "", "");
+        }
+    }
+     
+    // Actualiza en la vista los valores de los campos
+    function colocarDatosFormNuevaSesion(inicio, fin, horario, cupo, disponible) {
+        document.getElementById("lblFechaInicioNew").textContent = inicio;
+        document.getElementById("lblFechaFinNew").textContent = fin;
+        document.getElementById("lblHorarioNew").textContent = horario;
+        document.getElementById("lblCupoNew").textContent = cupo;
+        document.getElementById("lblDisponibleNew").textContent = disponible;
+    }
+
+    // Carga listado de sesion a elegir para hacer el cambio
+    function cargarListaNuevaSesion(){
+        // Cargar listado de sesiones
+        var cmbSesiones = document.getElementById("cmbSesiones");
+        cmbSesiones.innerHTML = "";
+
+        fetch(`@apiBaseUrl/api/Sesion/Leer`)
+            .then(response => response.json())
+            .then(data => {
+                var optionDefault = document.createElement('option');
+                optionDefault.value = 0;
+                optionDefault.textContent = "Selecciona una sesión disponible";
+                cmbSesiones.appendChild(optionDefault);
+
+                data.forEach(function (item) {
+                    var option = document.createElement('option');
+                    option.value = item.id;
+                    option.textContent = item.nombre;
+                    option.setAttribute("data-start", item.startDateTime);
+                    option.setAttribute("data-end", item.endDateTime);
+                    option.setAttribute("data-cupo", item.cupo);
+                    option.setAttribute("data-disponible", item.disponible);
+                    cmbSesiones.appendChild(option);
+                });
+            })
+            .then(() => {
+                detalleNuevaSesion();
+            })
+            .catch(error => console.error("Error msg: ", error));
+    }
+
+    // Carga los campos al iniciar la pagina
+    function iniciarSitio() {
+
+        // Iniciar Lista de Estudiantes
+        var cmbEstudiantes = document.getElementById("cmbEstudiantes");
+        cmbEstudiantes.innerHTML = "";
+
+        moment.locale('es');
+
+        // Carga lista de estudiantes
+        fetch(`@apiBaseUrl/api/Estudiante/Leer`)
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(function (item) {
+                    var option = document.createElement('option');
+                    option.value = item.id;
+                    option.textContent = item.nombre;
+                    cmbEstudiantes.appendChild(option);
+                });
+            })
+            .then(() => {
+                busquedaSesionesAsignadas();
+            })
+            .catch(error => console.error("Error msg: ", error));
+
+
+        // Se carga el listado de sesiones
+        cargarListaNuevaSesion();
+
+    }
+
+    // Borra la asignacion del estudiante y sesion seleccionada.
+    function modificarAsignacion() {
+        var asignacion = document.getElementById("cmbAsignaciones").value;
+        var nuevaSesion = document.getElementById("cmbSesiones").value;
+        
+        if (asignacion == null || asignacion == '' ) {
+            alert("Debe seleccionar una asignacion.");
+        }
+        else if (nuevaSesion == null || nuevaSesion == 0 ){
+            alert("Debe seleccionar una nueva sesión disponible.");
+        }
+        else {
+            const jsonData = {
+                id: asignacion,
+                estudiante: {},
+                sesion: {
+                    id: nuevaSesion
+                }
+            }
+            const request = {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(jsonData)
+            }
+            // Se solicita al API la eliminación
+            fetch(`@apiBaseUrl/api/Asignacion/Actualizar`, request)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.id == 1) {
+                        window.alert(data.msg);
+                        // Se busca nuevamente las sesiones asignadas debiendo desaparecer la eliminada.
+                        busquedaSesionesAsignadas();
+                        // Se debe actualizar el listado de nuevas sesiones para que muestre el nuevo disponible.
+                        cargarListaNuevaSesion();
+                    }
+                    else {
+                        window.alert(data.msg);
+                    }
+                })
+                .catch(error => console.error("Error msg: ", error));
+        }
+    }
+
+    // Carga los datos de inicio.
+    iniciarSitio();
+
+</script>

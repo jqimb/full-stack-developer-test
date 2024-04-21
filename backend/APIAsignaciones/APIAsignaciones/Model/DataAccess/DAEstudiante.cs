@@ -82,7 +82,7 @@ namespace APIAsignaciones.Model.DataAccess
                 using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-                    string sql = @"SELECT e.id, e.nombre, e.email FROM TBL_ESTUDIANTES e";
+                    string sql = @"SELECT e.id, e.nombre, e.email FROM TBL_ESTUDIANTES e ORDER BY e.nombre";
                     using (var command = new SqlCommand(sql, connection))
                     {
                         using (var reader = command.ExecuteReader())
